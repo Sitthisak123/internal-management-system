@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { requisitionService, Requisition } from '../src/services/requisitionService';
-import { Search, Filter, Plus, Edit2, Eye, ChevronRight, FileCheck, Loader, Trash2 } from 'lucide-react';
+import { Search, Filter, Plus, Edit2, Eye, ChevronRight, FileCheck, Loader } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Requisitions: React.FC = () => {
@@ -24,17 +24,6 @@ const Requisitions: React.FC = () => {
 
     fetchRequisitions();
   }, []);
-
-  const handleDelete = async (requisitionId: number) => {
-    if (window.confirm('Are you sure you want to delete this requisition?')) {
-      try {
-        await requisitionService.deleteRequisition(requisitionId);
-        setRequisitions(requisitions.filter(r => r.id !== requisitionId));
-      } catch (err: any) {
-        alert(err.message || 'Failed to delete requisition');
-      }
-    }
-  };
 
   const getStatusInfo = (status: number) => {
     switch (status) {
@@ -122,7 +111,6 @@ const Requisitions: React.FC = () => {
                     <div className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                       <Link to={`/requisitions/view/${req.id}`} className="text-dark-muted hover:text-blue-400 p-1.5 rounded-md"><Eye size={16} /></Link>
                       <Link to={`/requisitions/edit/${req.id}`} className="text-dark-muted hover:text-white p-1.5 rounded-md"><Edit2 size={16} /></Link>
-                      <button onClick={() => handleDelete(req.id)} className="text-dark-muted hover:text-red-500 p-1.5 rounded-md"><Trash2 size={16} /></button>
                     </div>
                   </td>
                 </tr>

@@ -24,10 +24,16 @@ const deletePersonnel = (id: string) => {
   return apiClient.delete(`/personnel/${id}`);
 };
 
+const getPersonnelByStatus = (status: number) => {
+  return apiClient.get(`/personnel/status/${status}`);
+}
+
+
 export const personnelService = {
   getPersonnel,
   getPersonnelCount,
   getPersonnelById,
+  getPersonnelByStatus,
   createPersonnel,
   updatePersonnel,
   deletePersonnel,

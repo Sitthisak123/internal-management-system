@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { userService } from '../src/services/userService';
 import { Profile } from '../types';
+import { Link } from 'react-router-dom';
 import { 
   Search, 
   Plus, 
@@ -52,6 +53,15 @@ const Users: React.FC = () => {
       default: return { text: 'Unknown', className: 'bg-gray-500/10 text-gray-400 border-gray-500/20' };
     }
   };
+
+  const getRoleColor = (role: number) => {
+    switch (role) {
+      case 1: return 'bg-gradient-to-br from-orange-600 to-purple-600';
+      case 0: return 'bg-gradient-to-br from-blue-600 to-blue-400';
+      case -1: return 'bg-gradient-to-br from-slate-600 to-slate-400';
+      default: return 'bg-gradient-to-br from-gray-600 to-gray-400';
+    }
+  };
   
   const getInitials = (name: string | null) => {
     if (!name) return '?';
@@ -76,10 +86,10 @@ const Users: React.FC = () => {
             <Download size={16} />
             Export
           </button>
-          <button className="flex items-center gap-2 h-9 px-4 rounded-lg bg-primary hover:bg-primary-dark text-white text-sm font-medium transition-all shadow-lg">
-            <Plus size={16} />
-            Add New User
-          </button>
+          <Link to="/users/create" className="flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg shadow-lg shadow-primary/20 transition-all font-medium whitespace-nowrap">
+            <Plus size={20} />
+            <span>User</span>
+          </Link>
         </div>
       </div>
 
@@ -161,12 +171,12 @@ const Users: React.FC = () => {
                   <td className="px-6 py-4"><input type="checkbox" className="rounded bg-slate-900 border-dark-border" /></td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center text-white font-bold text-xs">
-                        {getInitials(p.username)}
+                      <div className={`h-10 w-10 rounded-full ${getRoleColor(p.role)} flex items-center justify-center text-white font-bold text-xs`}>
+                        {getInitials(p.fullname)}
                       </div>
                       <div>
-                        <p className="font-medium text-white">{p.username}</p>
-                        <p className="text-dark-muted text-xs">{p.email}</p>
+                        <p className="font-medium text-white">{p.fullname}</p>
+                        <p className="text-dark-muted text-xs">{p.username ? "@"+p.username : '<No Username>'} | {p.email || '<No Email>'}</p>
                       </div>
                     </div>
                   </td>

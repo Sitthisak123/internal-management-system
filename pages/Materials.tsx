@@ -31,14 +31,14 @@ const Materials: React.FC = () => {
     fetchMaterials();
   }, []);
 
-  const getStatusInfo = (quantity: number) => {
+  const getStatusInfo = (quantity: number, minimumThreshold: number = 20) => {
     if (quantity === 0) return { text: 'Out of Stock', className: 'bg-red-500/10 text-red-400 border-red-500/20' };
-    if (quantity < 20) return { text: 'Low Stock', className: 'bg-orange-500/10 text-orange-400 border-orange-500/20' };
+    if (quantity <= minimumThreshold) return { text: 'Low Stock', className: 'bg-orange-500/10 text-orange-400 border-orange-500/20' };
     return { text: 'In Stock', className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
   };
 
   const totalSKUs = materials.length;
-  const lowStockCount = materials.filter(m => m.quantity > 0 && m.quantity < 20).length;
+  const lowStockCount = materials.filter(m => m.quantity > 0 && m.quantity <= (m.minimum_threshold || 20)).length;
   const outOfStock = materials.filter(m => m.quantity === 0).length;
 
   return (
@@ -119,8 +119,8 @@ const Materials: React.FC = () => {
                   <th className="py-4 px-6 text-xs font-semibold text-dark-muted uppercase tracking-wider w-16">#</th>
                   <th className="py-4 px-6 text-xs font-semibold text-dark-muted uppercase tracking-wider">Material</th>
                   <th className="py-4 px-6 text-xs font-semibold text-dark-muted uppercase tracking-wider">Category</th>
-                  <th className="py-4 px-6 text-xs font-semibold text-dark-muted uppercase tracking-wider">Unit</th>
                   <th className="py-4 px-6 text-xs font-semibold text-dark-muted uppercase tracking-wider text-right">Quantity</th>
+                  <th className="py-4 px-6 text-xs font-semibold text-dark-muted uppercase tracking-wider">Unit</th>
                   <th className="py-4 px-6 text-xs font-semibold text-dark-muted uppercase tracking-wider">Status</th>
                   <th className="py-4 px-6 text-xs font-semibold text-dark-muted uppercase tracking-wider text-right">Actions</th>
                 </tr>
@@ -145,15 +145,15 @@ const Materials: React.FC = () => {
                         {material.material_type?.title || 'N/A'}
                       </span>
                     </td>
-                    <td className="py-4 px-6">
-                      <div className="text-sm text-white">{material.unit}</div>
-                    </td>
                     <td className="py-4 px-6 text-right">
                       <div className="text-sm text-slate-300 font-medium">{material.quantity}</div>
                     </td>
                     <td className="py-4 px-6">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusInfo(material.quantity).className}`}>
-                        {getStatusInfo(material.quantity).text}
+                      <div className="text-sm text-white">{material.unit}</div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusInfo(material.quantity, material.minimum_threshold).className}`}>
+                        {getStatusInfo(material.quantity, material.minimum_threshold).text}
                       </span>
                     </td>
                     <td className="py-4 px-6 text-right">

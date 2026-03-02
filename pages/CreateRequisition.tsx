@@ -4,12 +4,15 @@ import { materialService } from '../src/services/materialService';
 import { requisitionService } from '../src/services/requisitionService';
 import { authService } from '../src/services/authService';
 import { Personnel, Material } from '../types';
-import { Info, ShoppingCart, UploadCloud, Trash2, PlusCircle, ArrowRight, ChevronRight, Loader, AlertCircle } from 'lucide-react';
+import { ShoppingCart, Trash2, PlusCircle, ChevronRight, Loader, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Breadcrumb from '../components/Breadcrumb';
 
 const CreateRequisition: React.FC = () => {
   const navigate = useNavigate();
   const [subject, setSubject] = useState('');
+  const [description, setDescription] = useState('');
+  const [purpose, setPurpose] = useState('');
   const [date, setDate] = useState('');
   const [ownerId, setOwnerId] = useState<number | null>(null);
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
@@ -74,6 +77,8 @@ const CreateRequisition: React.FC = () => {
 
     const requisitionData = {
       subject,
+      description,
+      purpose,
       form_date: date,
       owner_id: ownerId,
       // The creator_id will be set on the backend from the JWT
@@ -95,19 +100,8 @@ const CreateRequisition: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       <header className="flex flex-col gap-6">
-        <nav className="flex items-center gap-2 text-sm text-dark-muted">
-          <button onClick={() => navigate('/')} className="hover:text-primary transition-colors">Home</button>
-          <ChevronRight size={14} />
-          <button onClick={() => navigate('/requisitions')} className="hover:text-primary transition-colors">Requisitions</button>
-          <span className="mx-2">/</span>
-          <span className="text-white font-medium">Create New</span>
-        </nav>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-3xl font-bold text-white tracking-tight">Create Material Requisition</h2>
-            <p className="text-dark-muted mt-1">Fill in the details below to submit a new request for approval.</p>
-          </div>
-        </div>
+        <Breadcrumb />
+        <h2 className="text-3xl font-bold text-white tracking-tight">Create Material Requisition</h2>
       </header>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -117,27 +111,60 @@ const CreateRequisition: React.FC = () => {
             </div>
           )}
         <div className="bg-dark-surface rounded-xl border border-dark-border shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-dark-border bg-dark-surface/50 flex items-center gap-3">
-            <div className="p-2 bg-blue-500/10 rounded-lg text-primary">
-              <Info size={20} />
-            </div>
-            <h3 className="text-lg font-semibold text-white">General Information</h3>
-          </div>
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2 space-y-1.5">
-              <label className="text-sm font-medium text-slate-300">Subject / Purpose</label>
-              <input value={subject} onChange={e => setSubject(e.target.value)} required className="w-full bg-dark-bg border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-600 focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="e.g. Q3 Maintenance Materials for Block A" />
+              <label className="text-sm font-medium text-slate-300">Subject</label>
+              <input
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                required
+                className="w-full bg-dark-bg border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-600 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                placeholder="e.g. Q3 Maintenance Materials"
+              />
+            </div>
+            <div className="md:col-span-2 space-y-1.5">
+              <label className="text-sm font-medium text-slate-300">Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full bg-dark-bg border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-600 focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none"
+                rows={3}
+                placeholder="Provide details about the requisition (optional)"
+              />
+            </div>
+            <div className="md:col-span-2 space-y-1.5">
+              <label className="text-sm font-medium text-slate-300">Purpose</label>
+              <textarea
+                value={purpose}
+                onChange={(e) => setPurpose(e.target.value)}
+                className="w-full bg-dark-bg border border-slate-700 rounded-lg px-4 py-2.5 text-white placeholder-slate-600 focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none"
+                rows={3}
+                placeholder="Explain the purpose of this requisition (optional)"
+              />
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-slate-300">Date Required</label>
-              <input type="date" value={date} onChange={e => setDate(e.target.value)} required className="w-full bg-dark-bg border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:border-primary focus:ring-1 focus:ring-primary" />
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+                className="w-full bg-dark-bg border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:border-primary focus:ring-1 focus:ring-primary"
+              />
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-slate-300">Owner</label>
-              <select onChange={e => setOwnerId(parseInt(e.target.value, 10))} required className="w-full bg-dark-bg border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:border-primary">
+              <select
+                value={ownerId ?? ''}
+                onChange={(e) => setOwnerId(parseInt(e.target.value, 10))}
+                required
+                className="w-full bg-dark-bg border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:border-primary"
+              >
                 <option value="">Select an owner</option>
-                {personnel.map(p => (
-                  <option key={p.id} value={p.id}>{p.fullname}</option>
+                {personnel.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.fullname}
+                  </option>
                 ))}
               </select>
             </div>
@@ -145,15 +172,9 @@ const CreateRequisition: React.FC = () => {
         </div>
 
         <div className="bg-dark-surface rounded-xl border border-dark-border shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-dark-border bg-dark-surface/50 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500">
-                <ShoppingCart size={20} />
-              </div>
-              <h3 className="text-lg font-semibold text-white">Material Details</h3>
-            </div>
-          </div>
-          
+          <h3 className="text-lg font-semibold text-white p-4 flex items-center gap-2">
+            <ShoppingCart size={20} /> Material Details
+          </h3>
           <div className="p-6 overflow-x-auto">
             <table className="w-full text-left min-w-[600px]">
               <thead>
@@ -206,7 +227,7 @@ const CreateRequisition: React.FC = () => {
             Cancel
           </button>
           <button type="submit" disabled={loading} className="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-semibold rounded-lg shadow-lg flex items-center gap-2 transition-all disabled:opacity-50">
-            {loading ? <><Loader size={18} className="animate-spin" /><span>Submitting...</span></> : <><span>Submit Requisition</span><ArrowRight size={18} /></>}
+            {loading ? <><Loader size={18} className="animate-spin" /><span>Submitting...</span></> : <><span>Submit Requisition</span></> }
           </button>
         </div>
       </form>

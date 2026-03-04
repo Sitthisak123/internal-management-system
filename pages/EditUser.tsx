@@ -96,26 +96,26 @@ const EditUser: React.FC = () => {
     fetchUser();
   }, [id]);
 
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
+  const [isSuspending, setIsSuspending] = useState(false);
 
-  const toggleDeleteModal = () => {
-    setIsDeleteModalOpen(!isDeleteModalOpen);
+  const toggleSuspendModal = () => {
+    setIsSuspendModalOpen(!isSuspendModalOpen);
   };
 
-  const handleDelete = async () => {
+  const handleSuspend = async () => {
     if (!id) return;
 
-    setIsDeleting(true);
+    setIsSuspending(true);
     setError(null);
 
     try {
-      await userService.deleteUser(id);
+      await userService.updateUser(id, { status: -1 });
       navigate('/users');
     } catch (err: any) {
-      setError(err.message || 'Failed to delete user.');
-      setIsDeleting(false);
-      toggleDeleteModal();
+      setError(err.message || 'Failed to suspend user.');
+      setIsSuspending(false);
+      toggleSuspendModal();
     }
   };
 
@@ -320,10 +320,10 @@ const EditUser: React.FC = () => {
           <div>
             <button
               type="button"
-              onClick={toggleDeleteModal}
+              onClick={toggleSuspendModal}
               className="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-red-500 hover:text-red-400 transition-all rounded-lg"
             >
-              Delete User
+              Suspend/On leave
             </button>
           </div>
           <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 w-full sm:w-auto">
@@ -346,32 +346,32 @@ const EditUser: React.FC = () => {
         </div>
       </form>
 
-      {isDeleteModalOpen && (
+      {isSuspendModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 animate-in fade-in">
           <div className="bg-dark-surface rounded-2xl border border-dark-border shadow-2xl p-8 max-w-md w-full m-4">
             <div className="flex flex-col items-center text-center">
               <div className="p-3 bg-red-500/10 rounded-full border-4 border-red-500/20 mb-4">
                 <Archive size={32} className="text-red-500" />
               </div>
-              <h2 className="text-2xl font-bold text-white">Confirm Deletion</h2>
+              <h2 className="text-2xl font-bold text-white">Confirm Suspension</h2>
               <p className="text-dark-muted mt-2">
-                Are you sure you want to delete this user? This action cannot be undone.
+                Are you sure you want to suspend this user? They will not be able to log in.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4 mt-8">
               <button
-                onClick={toggleDeleteModal}
-                disabled={isDeleting}
+                onClick={toggleSuspendModal}
+                disabled={isSuspending}
                 className="px-6 py-3 text-sm font-medium text-dark-muted hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-all"
               >
                 Cancel
               </button>
               <button
-                onClick={handleDelete}
-                disabled={isDeleting}
+                onClick={handleSuspend}
+                disabled={isSuspending}
                 className="px-6 py-3 text-sm font-medium text-white bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/20 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {isDeleting ? 'Deleting...' : 'Confirm Delete'}
+                {isSuspending ? 'Suspending...' : 'Confirm Suspend'}
               </button>
             </div>
           </div>

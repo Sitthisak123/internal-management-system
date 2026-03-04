@@ -8,7 +8,7 @@ export interface UserSubset {
   username: string;
   email: string;
   position: string;
-  title: string;
+  role: number;
 }
 
 export interface RequisitionItem {
@@ -32,6 +32,7 @@ export interface Requisition {
   form_date: string;
   created_at: string;
   updated_at: string;
+  evaluated_at?: string;
   creator: UserSubset;
   owner: UserSubset;
   authorizer?: UserSubset | null;

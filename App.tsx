@@ -14,6 +14,7 @@ import Requisitions from './pages/Requisitions';
 import CreateRequisition from './pages/CreateRequisition';
 import EditRequisition from './pages/EditRequisition';
 import ViewRequisition from './pages/ViewRequisition';
+import ViewRequitionSlip from './pages/ViewRequitionSlip';
 import Materials from './pages/Materials';
 import CreateMaterial from './pages/CreateMaterial';
 import EditMaterial from './pages/EditMaterial';
@@ -66,6 +67,7 @@ const App: React.FC = () => {
             <Route path="/requisitions/create" element={<CreateRequisition />} />
             <Route path="/requisitions/edit/:id" element={<EditRequisition />} />
             <Route path="/requisitions/view/:id" element={<ViewRequisition />} />
+            <Route path="/requisitions/slip/:id" element={<ViewRequitionSlip />} />
             <Route path="/materials" element={<Materials />} />
             <Route path="/materials/create" element={<CreateMaterial />} />
             <Route path="/materials/edit/:id" element={<EditMaterial />} />

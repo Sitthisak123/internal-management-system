@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { requisitionService, Requisition } from '../src/services/requisitionService';
-import { Loader, AlertCircle, ChevronRight, FileText, User, ShoppingCart, Check, X, Hourglass, Calendar, Edit } from 'lucide-react';
+import { Loader, AlertCircle, ChevronRight, FileText, User, ShoppingCart, Check, X, Hourglass, Calendar, Edit, Printer } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 
@@ -124,7 +124,7 @@ const ViewRequisition: React.FC = () => {
         </nav>
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{requisition.subject}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight max-w-2xl truncate">{requisition.subject}</h1>
                 <p className="text-dark-muted mt-2">Reference No: <span className="font-mono text-white">{requisition.ref_no}</span></p>
             </div>
             <div className="flex items-center gap-4">
@@ -132,6 +132,10 @@ const ViewRequisition: React.FC = () => {
                     {statusInfo.icon}
                     <span>{statusInfo.label}</span>
                 </span>
+                <Link to={`/requisitions/slip/${requisition.id}`} className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition-all font-semibold">
+                    <Printer size={16} />
+                    <span>Slip</span>
+                </Link>
                 {requisition.status == '0' && (
                   <Link to={`/requisitions/edit/${requisition.id}`} className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition-all font-semibold">
                       <Edit size={16} />

@@ -3,13 +3,24 @@ import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { authService } from '../src/services/authService';
-import { Search, Bell, HelpCircle, ChevronDown, Menu, LogOut } from 'lucide-react';
+import { Search, Bell, HelpCircle, ChevronDown, Menu, LogOut, Languages } from 'lucide-react';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 const Layout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { language, setLanguage, t } = useLanguage();
   const pageTitle = location.pathname.split('/')[1];
-  const capitalizedTitle = pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1);
+  const pageTitleKeyMap: Record<string, Parameters<typeof t>[0]> = {
+    dashboard: 'dashboard',
+    personnel: 'personnel',
+    materials: 'inventory',
+    requisitions: 'requisitions',
+    users: 'users_roles',
+    settings: 'settings',
+  };
+  const currentTitleKey = pageTitleKeyMap[pageTitle] ?? 'dashboard';
+  const headerTitle = pageTitle ? t(currentTitleKey) : t('dashboard');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
@@ -27,7 +38,7 @@ const Layout: React.FC = () => {
             <button className="lg:hidden text-dark-muted hover:text-white transition-colors">
               <Menu size={24} />
             </button>
-            <h2 className="text-white text-lg font-bold tracking-tight">{capitalizedTitle || 'Dashboard'}</h2>
+            <h2 className="text-white text-lg font-bold tracking-tight">{headerTitle}</h2>
           </div>
           
           <div className="flex items-center gap-4 lg:gap-6">
@@ -35,7 +46,7 @@ const Layout: React.FC = () => {
               <Search size={18} className="text-dark-muted" />
               <input 
                 className="bg-transparent border-none text-sm text-white placeholder-dark-muted focus:ring-0 w-full ml-2 p-0 h-auto leading-none" 
-                placeholder="Search..." 
+                placeholder={t('search_placeholder')} 
                 type="text" 
               />
             </div>
@@ -65,8 +76,8 @@ const Layout: React.FC = () => {
                     <div className="absolute bottom-0 right-0 size-2.5 bg-green-500 rounded-full ring-2 ring-dark-bg"></div>
                   </div>
                   <div className="hidden sm:flex flex-col items-start">
-                    <span className="text-sm font-medium text-white group-hover:text-primary transition-colors leading-tight">Admin User</span>
-                    <span className="text-[10px] text-dark-muted uppercase tracking-wider font-semibold">Manager</span>
+                    <span className="text-sm font-medium text-white group-hover:text-primary transition-colors leading-tight">{t('admin_user')}</span>
+                    <span className="text-[10px] text-dark-muted uppercase tracking-wider font-semibold">{t('manager')}</span>
                   </div>
                   <ChevronDown size={16} className="text-dark-muted hidden sm:block group-hover:text-white transition-colors" />
                 </button>
@@ -76,12 +87,41 @@ const Layout: React.FC = () => {
                   onMouseEnter={() => setIsLogoutModalOpen(true)}
                   onMouseLeave={() => setIsLogoutModalOpen(false)}
                 >
+                    <div className="px-3 pt-3 pb-2">
+                      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-dark-muted">
+                        <Languages size={14} />
+                        <span>{t('language')}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        <button
+                          onClick={() => setLanguage('en')}
+                          className={`text-xs rounded-md px-3 py-1.5 border transition-colors ${
+                            language === 'en'
+                              ? 'bg-primary/20 border-primary/60 text-white'
+                              : 'bg-dark-bg border-dark-border text-dark-muted hover:text-white'
+                          }`}
+                        >
+                          {t('eng')}
+                        </button>
+                        <button
+                          onClick={() => setLanguage('th')}
+                          className={`text-xs rounded-md px-3 py-1.5 border transition-colors ${
+                            language === 'th'
+                              ? 'bg-primary/20 border-primary/60 text-white'
+                              : 'bg-dark-bg border-dark-border text-dark-muted hover:text-white'
+                          }`}
+                        >
+                          {t('thai')}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="h-px bg-dark-border my-1"></div>
                     <button 
                       onClick={handleLogout}
                       className="flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 w-full"
                     >
                       <LogOut size={16} />
-                      <span>Logout</span>
+                      <span>{t('logout')}</span>
                     </button>
                   </div>
                 )}

@@ -10,15 +10,18 @@ import {
   LogOut,
   Plus
 } from 'lucide-react';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 const Sidebar: React.FC = () => {
+  const { t } = useLanguage();
+
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
-    { name: 'Personnel', path: '/personnel', icon: <Users size={20} /> },
-    { name: 'Inventory', path: '/materials', icon: <Package size={20} /> },
-    { name: 'Requisitions', path: '/requisitions', icon: <FileText size={20} /> },
-    { name: 'Users & Roles', path: '/users', icon: <Users size={20} /> },
-    { name: 'Settings', path: '/settings', icon: <Settings size={20} /> },
+    { name: t('dashboard'), path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+    { name: t('personnel'), path: '/personnel', icon: <Users size={20} /> },
+    { name: t('inventory'), path: '/materials', icon: <Package size={20} /> },
+    { name: t('requisitions'), path: '/requisitions', icon: <FileText size={20} /> },
+    { name: t('users_roles'), path: '/users', icon: <Users size={20} /> },
+    { name: t('settings'), path: '/settings', icon: <Settings size={20} /> },
   ];
 
   return (
@@ -31,7 +34,7 @@ const Sidebar: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <h1 className="text-white text-base font-semibold leading-none mb-1">Management Sys</h1>
-              <p className="text-dark-muted text-xs font-medium uppercase tracking-wider">Admin Portal</p>
+              <p className="text-dark-muted text-xs font-medium uppercase tracking-wider">{t('admin_portal')}</p>
             </div>
           </div>
           
@@ -57,7 +60,7 @@ const Sidebar: React.FC = () => {
         <div className="flex flex-col gap-4">
           <div className="px-3 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-dark-muted">Storage Usage</span>
+              <span className="text-xs font-medium text-dark-muted">{t('storage_usage')}</span>
               <span className="text-xs font-bold text-white">78%</span>
             </div>
             <div className="w-full bg-slate-700 rounded-full h-1.5">
@@ -67,12 +70,12 @@ const Sidebar: React.FC = () => {
           
           <NavLink to="/requisitions/create" className="flex w-full cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary hover:bg-primary-dark transition-colors text-white text-sm font-semibold shadow-lg shadow-blue-900/20 active:scale-[0.98]">
             <Plus size={18} className="mr-2" />
-            <span className="truncate">New Requisition</span>
+            <span className="truncate">{t('new_requisition')}</span>
           </NavLink>
 
           <button className="flex items-center gap-3 px-3 py-2 rounded-lg text-dark-muted hover:text-red-400 hover:bg-red-400/10 transition-colors w-full mt-2">
             <LogOut size={18} />
-            <span className="text-sm font-medium">Logout</span>
+            <span className="text-sm font-medium">{t('logout')}</span>
           </button>
         </div>
       </div>

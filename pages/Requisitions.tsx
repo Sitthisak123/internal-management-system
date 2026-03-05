@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { requisitionService, Requisition } from '../src/services/requisitionService';
-import { Search, Filter, Plus, Edit2, Eye, ChevronRight, FileCheck, Loader } from 'lucide-react';
+import { Search, Filter, Plus, Edit2, Eye, ChevronRight, FileCheck, Loader, Printer } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Requisitions: React.FC = () => {
@@ -77,7 +77,7 @@ const Requisitions: React.FC = () => {
             <thead>
               <tr className="bg-slate-900/50 border-b border-dark-border">
                 <th className="px-6 py-4 text-dark-muted text-xs font-semibold uppercase tracking-wider w-32">Ref No</th>
-                <th className="px-6 py-4 text-dark-muted text-xs font-semibold uppercase tracking-wider">Subject</th>
+                <th className="px-6 py-4 text-dark-muted text-xs font-semibold uppercase tracking-wider max-w-xs">Subject</th>
                 <th className="px-6 py-4 text-dark-muted text-xs font-semibold uppercase tracking-wider">Date Created</th>
                 <th className="px-6 py-4 text-dark-muted text-xs font-semibold uppercase tracking-wider">Requester</th>
                 <th className="px-6 py-4 text-dark-muted text-xs font-semibold uppercase tracking-wider">Authorizer</th>
@@ -92,7 +92,7 @@ const Requisitions: React.FC = () => {
                 return (
                 <tr key={req.id} className="hover:bg-white/5 transition-colors group text-nowrap">
                   <td className="px-6 py-4 text-white text-sm font-medium tracking-wide font-mono">{req.ref_no}</td>
-                  <td className="px-6 py-4 text-white text-sm font-medium">{req.subject}</td>
+                  <td className="px-6 py-4 text-white text-sm font-medium truncate max-w-xs">{req.subject}</td>
                   <td className="px-6 py-4 text-dark-muted text-sm">{new Date(req.created_at).toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-dark-muted text-sm">
                     <div className="flex flex-col">   
@@ -112,6 +112,7 @@ const Requisitions: React.FC = () => {
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                       <Link to={`/requisitions/view/${req.id}`} className="text-dark-muted hover:text-blue-400 p-1.5 rounded-md"><Eye size={16} /></Link>
+                      <Link to={`/requisitions/slip/${req.id}`} className="text-dark-muted hover:text-emerald-400 p-1.5 rounded-md"><Printer size={16} /></Link>
                       <Link to={`/requisitions/edit/${req.id}`} className="text-dark-muted hover:text-white p-1.5 rounded-md"><Edit2 size={16} /></Link>
                     </div>
                   </td>

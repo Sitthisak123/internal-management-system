@@ -142,21 +142,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             >
               {loading ? 'Logging in...' : 'Log In'}
             </button>
-          </form>
-          
-          <div className="text-center">
-            <p className="text-slate-500 text-sm">
-              Don't have an account? 
-              <a 
-                className="text-primary font-medium hover:text-blue-400 hover:underline transition-colors ml-1" 
-                href="#/signup"
-                onClick={() => navigate('/signup')}
-              >
-                Sign Up
-              </a>
-            </p>
-          </div>
-          
+          </form> 
           <div className="mt-4 border-t border-slate-800 pt-6 text-center">
             <p className="text-slate-600 text-xs">
               © 2024 Internal Systems Corp. All rights reserved.

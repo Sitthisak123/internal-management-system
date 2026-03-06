@@ -2,11 +2,18 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type User = {
   id: number;
-  username: string;
+  username?: string | null;
+  display_name?: string | null;
+  fullname?: string;
+  position?: string;
   role: number;
-  email?: string;
-  title?: string;
-  personel_id?: number;
+  email?: string | null;
+  title?: string | null;
+  workplace_id?: number | null;
+  workplace?: {
+    building?: string | null;
+    room?: string | null;
+  } | null;
   status?: number;
   iat?: number;
   exp?: number;

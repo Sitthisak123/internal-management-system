@@ -29,6 +29,11 @@ export interface AddMaterialQtyResponse {
   new_value: number;
 }
 
+export interface MaterialStockSummary {
+  low_stock_count: number;
+  out_of_stock_count: number;
+}
+
 const getAll = (): Promise<Material[]> => {
   // Simulate fetching all materials
   return Promise.resolve([
@@ -70,6 +75,23 @@ const getInventoryDistribution = (): Promise<any[]> => {
 
 const getMaterials = (): Promise<AxiosResponse<Material[]>> => {
   return apiClient.get<Material[]>('/materials');
+};
+
+const getMaterialStockSummary = async (): Promise<MaterialStockSummary> => {
+  const response = await getMaterials();
+  const rows = Array.isArray(response.data) ? response.data : [];
+
+  const summary = rows.reduce(
+    (acc, item) => {
+      const threshold = item.minimum_threshold ?? item.safety_stock ?? 20;
+      if (item.quantity === 0) acc.out_of_stock_count += 1;
+      if (item.quantity > 0 && item.quantity <= threshold) acc.low_stock_count += 1;
+      return acc;
+    },
+    { low_stock_count: 0, out_of_stock_count: 0 }
+  );
+
+  return summary;
 };
 const getMaterialById = (id: number | string): Promise<AxiosResponse<Material>> => {
   return apiClient.get<Material>(`/materials/${id}`);
@@ -119,6 +141,7 @@ export const materialService = {
   getAll,
   getInventoryValue,
   getMaterials,
+  getMaterialStockSummary,
   getMaterialById,
   createMaterial,
   updateMaterial,

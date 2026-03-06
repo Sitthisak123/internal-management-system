@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { authService } from '../src/services/authService';
 import { userService, User as UserType } from '../src/services/userService';
 import { workplaceService, Workplace } from '../src/services/workplaceService';
+import { useAppDispatch } from '../store/hooks';
+import { setUser } from '../store/userSlice';
 import { 
   User as UserIcon, // Renamed to avoid collision
   Mail, 
@@ -19,6 +21,7 @@ import {
 import { Link } from 'react-router-dom';
 
 const UserProfile: React.FC = () => {
+  const dispatch = useAppDispatch();
   const [profile, setProfile] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -54,6 +57,7 @@ const UserProfile: React.FC = () => {
         setPosition(currentPosition);
         setWorkplaceId(currentWorkplaceId);
         setInitialValues({ displayName, position: currentPosition, workplaceId: currentWorkplaceId });
+        dispatch(setUser(data as any));
       } catch (err: any) {
         setError("Failed to load profile data.");
         console.error(err);
@@ -128,6 +132,7 @@ const UserProfile: React.FC = () => {
       setPosition(updatedPosition);
       setWorkplaceId(updatedWorkplaceId);
       setInitialValues({ displayName: updatedDisplayName, position: updatedPosition, workplaceId: updatedWorkplaceId });
+      dispatch(setUser(response.data as any));
       setSuccess("Profile updated successfully!");
     } catch (err: any) {
       console.error(err);

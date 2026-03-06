@@ -11,6 +11,12 @@ import UserSearchSelect from '../components/UserSearchSelect';
 
 type RequisitionItemRow = { id?: number; material_id: number | null; quantity: number; is_deleted?: boolean };
 
+const getTodayDateValue = () => {
+  const today = new Date();
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+  return today.toISOString().slice(0, 10);
+};
+
 const EditRequisition: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -244,6 +250,12 @@ const EditRequisition: React.FC = () => {
     setError(null);
     setSelectionError(null);
 
+    if (date && date > getTodayDateValue()) {
+      setError('Date Required cannot be in the future.');
+      setIsSubmitting(false);
+      return;
+    }
+
     if (!ownerId) {
       setSelectionError('Owner must be selected.');
       setIsSubmitting(false);
@@ -399,6 +411,7 @@ const EditRequisition: React.FC = () => {
               <DatePicker
                 value={date}
                 onChange={setDate}
+                max={getTodayDateValue()}
                 required
                 ariaLabel="Date Required"
               />

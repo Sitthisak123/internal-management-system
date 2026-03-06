@@ -13,6 +13,12 @@ import UserSearchSelect from '../components/UserSearchSelect';
 
 type RequisitionItemRow = { material_id: number | null; quantity: number };
 
+const getTodayDateValue = () => {
+  const today = new Date();
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+  return today.toISOString().slice(0, 10);
+};
+
 const CreateRequisition: React.FC = () => {
   const navigate = useNavigate();
   const [subject, setSubject] = useState('');
@@ -140,9 +146,21 @@ const CreateRequisition: React.FC = () => {
     setError(null);
     setSelectionError(null);
 
+    if (date && date > getTodayDateValue()) {
+      setError('Date Required cannot be in the future.');
+      setLoading(false);
+      return;
+    }
+
     const user = authService.getCurrentUser();
     if (!user || !ownerId) {
       setError("User must be logged in and an owner must be selected.");
+      setLoading(false);
+      return;
+    }
+
+    if (items.length === 0) {
+      setSelectionError('At least one material item is required.');
       setLoading(false);
       return;
     }
@@ -246,6 +264,7 @@ const CreateRequisition: React.FC = () => {
               <DatePicker
                 value={date}
                 onChange={setDate}
+                max={getTodayDateValue()}
                 required
                 ariaLabel="Date Required"
               />

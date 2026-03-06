@@ -11,9 +11,13 @@ import {
   Plus
 } from 'lucide-react';
 import { useLanguage } from '../src/contexts/LanguageContext';
+import { authService } from '../src/services/authService';
 
 const Sidebar: React.FC = () => {
   const { t } = useLanguage();
+  const handleLogout = () => {
+    authService.logout();
+  };
 
   const navItems = [
     { name: t('dashboard'), path: '/dashboard', icon: <LayoutDashboard size={20} /> },
@@ -72,7 +76,11 @@ const Sidebar: React.FC = () => {
             <span className="truncate">{t('new_requisition')}</span>
           </NavLink>
 
-          <button className="flex items-center gap-3 px-3 py-2 rounded-lg text-dark-muted hover:text-red-400 hover:bg-red-400/10 transition-colors w-full mt-2">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-dark-muted hover:text-red-400 hover:bg-red-400/10 transition-colors w-full mt-2"
+          >
             <LogOut size={18} />
             <span className="text-sm font-medium">{t('logout')}</span>
           </button>

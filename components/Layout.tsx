@@ -2,13 +2,16 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { authService, type User as AuthUser } from '../src/services/authService';
+import { authService } from '../src/services/authService';
 import { Search, Bell, HelpCircle, ChevronDown, Menu, LogOut, Languages, Mail, Briefcase, Building2 } from 'lucide-react';
 import { useLanguage } from '../src/contexts/LanguageContext';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { setUser } from '../store/userSlice';
 
 const Layout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { language, setLanguage, t } = useLanguage();
   const pageTitle = location.pathname.split('/')[1];
   const pageTitleKeyMap: Record<string, Parameters<typeof t>[0]> = {
@@ -22,32 +25,8 @@ const Layout: React.FC = () => {
   const currentTitleKey = pageTitleKeyMap[pageTitle] ?? 'dashboard';
   const headerTitle = pageTitle ? t(currentTitleKey) : t('dashboard');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [profile, setProfile] = useState<AuthUser | null>(null);
-  const [tokenUser, setTokenUser] = useState(() => authService.getCurrentUser());
+  const currentUser = useAppSelector((state) => state.user.user);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const syncCurrentUser = async () => {
-      const currentUser = authService.getCurrentUser();
-      if (mounted) setTokenUser(currentUser);
-      if (!currentUser) return;
-
-      try {
-        const me = await authService.getProfile();
-        if (!mounted) return;
-        setProfile(me);
-      } catch {
-        // Keep token fallback data if profile endpoint is temporarily unavailable.
-      }
-    };
-
-    syncCurrentUser();
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -63,8 +42,26 @@ const Layout: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isDropdownOpen) return;
+
+    const refetchCurrentUser = async () => {
+      const tokenUser = authService.getCurrentUser();
+      if (!tokenUser) return;
+
+      try {
+        const profile = await authService.getProfile();
+        dispatch(setUser({ ...tokenUser, ...profile }));
+      } catch {
+        dispatch(setUser(tokenUser));
+      }
+    };
+
+    void refetchCurrentUser();
+  }, [dispatch, isDropdownOpen]);
+
   const roleInfo = useMemo(() => {
-    const role = profile?.role ?? tokenUser?.role ?? 0;
+    const role = currentUser?.role ?? 0;
     switch (role) {
       case 1:
         return { name: 'Administrator', access: 'Full Access' };
@@ -75,10 +72,10 @@ const Layout: React.FC = () => {
       default:
         return { name: 'Unknown', access: 'N/A' };
     }
-  }, [profile?.role, tokenUser?.role]);
+  }, [currentUser?.role]);
 
   const statusInfo = useMemo(() => {
-    const status = profile?.status ?? 1;
+    const status = currentUser?.status ?? 1;
     switch (status) {
       case 1:
         return {
@@ -105,10 +102,10 @@ const Layout: React.FC = () => {
           dotClassName: 'bg-gray-500',
         };
     }
-  }, [profile?.status]);
+  }, [currentUser?.status]);
 
   const roleAvatarColor = useMemo(() => {
-    const role = profile?.role ?? tokenUser?.role ?? 0;
+    const role = currentUser?.role ?? 0;
     switch (role) {
       case 1:
         return 'bg-gradient-to-br from-orange-600 to-purple-600';
@@ -119,38 +116,38 @@ const Layout: React.FC = () => {
       default:
         return 'bg-gradient-to-br from-gray-600 to-gray-400';
     }
-  }, [profile?.role, tokenUser?.role]);
+  }, [currentUser?.role]);
 
   const displayName = useMemo(() => {
-    const fullName = profile?.fullname?.trim();
-    const display = profile?.display_name?.trim();
-    const username = profile?.username?.trim() || tokenUser?.username?.trim();
+    const fullName = currentUser?.fullname?.trim();
+    const display = currentUser?.display_name?.trim();
+    const username = currentUser?.username?.trim();
     return fullName || display || username || t('admin_user');
-  }, [profile?.fullname, profile?.display_name, profile?.username, tokenUser?.username, t]);
+  }, [currentUser?.fullname, currentUser?.display_name, currentUser?.username, t]);
 
   const userHandle = useMemo(() => {
-    const username = profile?.username?.trim() || tokenUser?.username?.trim();
+    const username = currentUser?.username?.trim();
     if (username) return `@${username}`;
-    if (profile?.email) return profile.email;
+    if (currentUser?.email) return currentUser.email;
     return roleInfo.access;
-  }, [profile?.username, tokenUser?.username, profile?.email, roleInfo.access]);
+  }, [currentUser?.username, currentUser?.email, roleInfo.access]);
 
   const userInitials = useMemo(() => {
-    const source = profile?.fullname || profile?.display_name || profile?.username || tokenUser?.username || '?';
+    const source = currentUser?.fullname || currentUser?.display_name || currentUser?.username || '?';
     const parts = source.trim().split(' ').filter(Boolean);
     if (parts.length === 0) return '?';
     return parts.slice(0, 2).map((part) => part[0]).join('').toUpperCase();
-  }, [profile?.fullname, profile?.display_name, profile?.username, tokenUser?.username]);
+  }, [currentUser?.fullname, currentUser?.display_name, currentUser?.username]);
 
   const workplaceLabel = useMemo(() => {
-    if (profile?.workplace?.building || profile?.workplace?.room) {
-      return [profile.workplace.building, profile.workplace.room].filter(Boolean).join(' / ');
+    if (currentUser?.workplace?.building || currentUser?.workplace?.room) {
+      return [currentUser.workplace.building, currentUser.workplace.room].filter(Boolean).join(' / ');
     }
-    if (profile?.workplace_id) {
-      return `Workplace #${profile.workplace_id}`;
+    if (currentUser?.workplace_id) {
+      return `Workplace #${currentUser.workplace_id}`;
     }
     return 'No workplace';
-  }, [profile?.workplace?.building, profile?.workplace?.room, profile?.workplace_id]);
+  }, [currentUser?.workplace?.building, currentUser?.workplace?.room, currentUser?.workplace_id]);
 
   const handleLogout = () => {
     authService.logout();
@@ -161,7 +158,7 @@ const Layout: React.FC = () => {
     <div className="flex h-screen w-full overflow-hidden bg-dark-bg">
       <Sidebar />
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-        <header className="h-16 flex items-center justify-between px-4 lg:px-8 border-b border-dark-border bg-dark-bg/80 backdrop-blur-md z-10 shrink-0 sticky top-0">
+        <header className="h-16 flex items-center justify-between px-4 lg:px-8 border-b border-dark-border bg-dark-bg/80 backdrop-blur-md z-40 shrink-0 sticky top-0">
           <div className="flex items-center gap-4">
             <button className="lg:hidden text-dark-muted hover:text-white transition-colors">
               <Menu size={24} />
@@ -215,7 +212,7 @@ const Layout: React.FC = () => {
                 </button>
                 {isDropdownOpen && (
                   <div 
-                  className="absolute top-full right-0 mt-1 w-80 bg-dark-surface rounded-lg shadow-lg border border-dark-border py-1"
+                  className="absolute top-full right-0 mt-1 z-50 w-80 bg-dark-surface rounded-lg shadow-lg border border-dark-border py-1"
                   role="menu"
                 >
                     <div className="px-3 pt-3 pb-2">
@@ -242,13 +239,13 @@ const Layout: React.FC = () => {
                             <span className="inline-flex items-center justify-center h-6 w-6 rounded-md bg-purple-500/10 text-purple-400">
                               <Briefcase size={14} />
                             </span>
-                            <span className="truncate">{profile?.position || roleInfo.access}</span>
+                            <span className="truncate">{currentUser?.position || roleInfo.access}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="inline-flex items-center justify-center h-6 w-6 rounded-md bg-blue-500/10 text-blue-400">
                               <Mail size={14} />
                             </span>
-                            <span className="truncate">{profile?.email || 'No email'}</span>
+                            <span className="truncate">{currentUser?.email || 'No email'}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="inline-flex items-center justify-center h-6 w-6 rounded-md bg-emerald-500/10 text-emerald-400">

@@ -31,13 +31,20 @@ const App: React.FC = () => {
   const dispatch = useAppDispatch();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  const syncAuthState = () => {
+  const syncAuthState = async () => {
     const currentUser = authService.getCurrentUser();
 
     if (currentUser) {
       dispatch(setUser(currentUser));
       dispatch(setToken(localStorage.getItem('token')));
       setIsAuthenticated(true);
+
+      try {
+        const profile = await authService.getProfile();
+        dispatch(setUser({ ...currentUser, ...profile }));
+      } catch {
+        // Keep token payload in store if profile endpoint is unavailable.
+      }
       return;
     }
 
@@ -46,11 +53,11 @@ const App: React.FC = () => {
   };
 
   const handleLoginSuccess = () => {
-    syncAuthState();
+    void syncAuthState();
   };
 
   useEffect(() => {
-    syncAuthState();
+    void syncAuthState();
   }, []);
 
   return (

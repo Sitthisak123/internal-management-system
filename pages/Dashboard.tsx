@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   FileCheck, 
-  DollarSign, 
   AlertTriangle, 
   TrendingUp, 
   TrendingDown, 
@@ -29,8 +28,8 @@ import { Link } from 'react-router-dom';
 const Dashboard: React.FC = () => {
   const [personnelCount, setPersonnelCount] = useState<number | null>(null);
   const [pendingRequisitions, setPendingRequisitions] = useState<number | null>(null);
-  const [lowMaterials, setLowMaterials] = useState<number | null>(null);
-  const [inventoryValue, setInventoryValue] = useState<number | null>(null);
+  const [lowStockCount, setLowStockCount] = useState<number | null>(null);
+  const [outOfStockCount, setOutOfStockCount] = useState<number | null>(null);
   const [barData, setBarData] = useState<any[]>([]);
   const [pieData, setPieData] = useState<any[]>([]);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
@@ -41,16 +40,14 @@ const Dashboard: React.FC = () => {
       try {
         const [
           personnelRes, 
-          materialsRes, 
-          inventoryValueRes,
+          materialStockSummary,
           barDataRes,
           pieDataRes,
           recentActivityRes,
           countFilteredByStatus,
         ] = await Promise.all([
           personnelService.getPersonnelCount(),
-          materialService.getAll(),
-          materialService.getInventoryValue(),
+          materialService.getMaterialStockSummary(),
           requisitionService.getRequisitionVolume(Array.from({length: 6}, (_, i) => -i)), // last 6 months
           materialService.getInventoryDistribution(),
           requisitionService.getRecentRequisitions(),
@@ -59,8 +56,8 @@ const Dashboard: React.FC = () => {
 
         setPersonnelCount(personnelRes.data.count);
         setPendingRequisitions(countFilteredByStatus.data.count);
-        setLowMaterials(materialsRes.filter(m => m.quantity < (m.safety_stock ?? 0)).length); // pending real API 
-        setInventoryValue(inventoryValueRes); // pending real API
+        setLowStockCount(materialStockSummary.low_stock_count);
+        setOutOfStockCount(materialStockSummary.out_of_stock_count);
         setBarData(barDataRes.data);
         setPieData(pieDataRes); // pending real API
         setRecentActivity(recentActivityRes);
@@ -91,19 +88,19 @@ const Dashboard: React.FC = () => {
       subtext: 'Awaiting manager approval'
     },
     { 
-      label: 'Inventory Value', 
-      value: inventoryValue !== null ? `$${(inventoryValue / 1000).toFixed(1)}k` : '...',
+      label: 'Low Stock', 
+      value: lowStockCount !== null ? lowStockCount.toString() : '...',
       change: '-1.2%', 
       trend: 'down', 
-      icon: <DollarSign className="text-purple-500" />,
-      subtext: 'Total asset valuation'
+      icon: <AlertTriangle className="text-orange-500" />,
+      subtext: 'Items below minimum threshold'
     },
     { 
-      label: 'Materials Low', 
-      value: lowMaterials !== null ? lowMaterials.toString() : '...', 
+      label: 'Out of Stock', 
+      value: outOfStockCount !== null ? outOfStockCount.toString() : '...', 
       status: 'FIX', 
       icon: <AlertTriangle className="text-red-500" />,
-      subtext: 'Items below safety stock'
+      subtext: 'Items with zero quantity'
     },
   ];
 
